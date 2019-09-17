@@ -1,125 +1,69 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import { MdShoppingCart } from 'react-icons/md';
+import { formatPrice } from '../../util/format';
+import api from '../../services/api';
+
+import * as CartActions from '../../store/modules/cart/actions';
 
 import { ProductsList } from './styles';
 
-export default function Home() {
-  return (
-    <ProductsList>
-      <li>
-        <img
-          src="https://images.pexels.com/photos/19090/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-          alt="Foto de tenis gratuita"
-        />
-        <strong>
-          Tênis muito legal com título muito grande que quebra várias linhas
-        </strong>
-        <span>R$129.90</span>
-        <button type="button">
-          <div>
-            <MdShoppingCart size={16} color="#fff" />
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://images.pexels.com/photos/19090/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-          alt="Foto de tenis gratuita"
-        />
-        <strong>Tênis muito legal</strong>
-        <span>R$129.90</span>
-        <button type="button">
-          <div>
-            <MdShoppingCart size={16} color="#fff" />
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://images.pexels.com/photos/19090/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-          alt="Foto de tenis gratuita"
-        />
-        <strong>Tênis muito legal</strong>
-        <span>R$129.90</span>
-        <button type="button">
-          <div>
-            <MdShoppingCart size={16} color="#fff" />
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://images.pexels.com/photos/19090/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-          alt="Foto de tenis gratuita"
-        />
-        <strong>Tênis muito legal</strong>
-        <span>R$129.90</span>
-        <button type="button">
-          <div>
-            <MdShoppingCart size={16} color="#fff" />
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://images.pexels.com/photos/19090/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-          alt="Foto de tenis gratuita"
-        />
-        <strong>Tênis muito legal</strong>
-        <span>R$129.90</span>
-        <button type="button">
-          <div>
-            <MdShoppingCart size={16} color="#fff" />
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://images.pexels.com/photos/19090/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-          alt="Foto de tenis gratuita"
-        />
-        <strong>Tênis muito legal</strong>
-        <span>R$129.90</span>
-        <button type="button">
-          <div>
-            <MdShoppingCart size={16} color="#fff" />
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://images.pexels.com/photos/19090/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-          alt="Foto de tenis gratuita"
-        />
-        <strong>Tênis muito legal</strong>
-        <span>R$129.90</span>
-        <button type="button">
-          <div>
-            <MdShoppingCart size={16} color="#fff" />
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://images.pexels.com/photos/19090/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-          alt="Foto de tenis gratuita"
-        />
-        <strong>Tênis muito legal</strong>
-        <span>R$129.90</span>
-        <button type="button">
-          <div>
-            <MdShoppingCart size={16} color="#fff" />
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-    </ProductsList>
-  );
+class Home extends Component {
+  constructor() {
+    super();
+    this.state = {
+      products: [],
+    };
+  }
+
+  async componentDidMount() {
+    const response = await api.get('products');
+
+    const data = response.data.map(product => ({
+      ...product,
+      formattedPrice: formatPrice(product.price),
+    }));
+
+    this.setState({ products: data });
+  }
+
+  handleAddProduct = product => {
+    const { addToCart } = this.props;
+
+    addToCart(product);
+  };
+
+  render() {
+    const { products } = this.state;
+
+    return (
+      <ProductsList>
+        {products.map(product => (
+          <li key={product.id}>
+            <img src={product.image} alt={`Foto do tenis ${product.title}`} />
+            <strong>{product.title}</strong>
+            <span>{product.formattedPrice}</span>
+            <button
+              type="button"
+              onClick={() => this.handleAddProduct(product)}
+            >
+              <div>
+                <MdShoppingCart size={16} color="#fff" /> 3
+              </div>
+              <span>ADICIONAR AO CARRINHO</span>
+            </button>
+          </li>
+        ))}
+      </ProductsList>
+    );
+  }
 }
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(Home);
