@@ -15,7 +15,7 @@ export default function cart(state = [], action) {
           draft.splice(productIndex, 1);
         }
       });
-    case '@cart/UPDATE_AMOUNT':
+    case '@cart/UPDATE_AMOUNT_SUCCESS':
       if (action.amount <= 0) {
         return state;
       }
